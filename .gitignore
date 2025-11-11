@@ -1,1 +1,7 @@
 docs/
+claude/
+bmad_instruct.md
+BMAD-V6-INTEGRATION.md
+install-bmad-v6.sh
+bmad/
+node_modules/
