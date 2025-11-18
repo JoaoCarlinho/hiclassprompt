@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hiclassprompt-postgres
+    environment:
+      POSTGRES_DB: hiclassprompt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hiclassprompt-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hiclassprompt-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - COGNITO_USER_POOL_ID=us-east-1_UkGLZUcFU
+      - COGNITO_CLIENT_ID=4umtibftffqi2lsvsi4rccv79l
+      - S3_BUCKET_NAME=hiclassprompt-exports-971422717446
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=hiclassprompt
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres123
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - AWS_REGION=us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./output:/app/output
+
+  frontend:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: hiclassprompt-frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_COGNITO_USER_POOL_ID=us-east-1_UkGLZUcFU
+      - NEXT_PUBLIC_COGNITO_CLIENT_ID=4umtibftffqi2lsvsi4rccv79l
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
