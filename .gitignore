@@ -7,4 +7,8 @@ bmad/
 node_modules/
 .env.example
 .env
+.env.local
 tokens
+dist/
+coverage/
+logs/
