@@ -116,7 +116,7 @@ export function useClassify() {
 
   const classify = useCallback(
     async (
-      imageFile: File,
+      imageInput: File | string,
       options?: {
         provider?: string;
         model?: string;
@@ -127,7 +127,14 @@ export function useClassify() {
       setState({ loading: true, error: null });
 
       try {
-        const result = await apiClient.classifyImage(imageFile, options);
+        let result;
+        if (typeof imageInput === 'string') {
+          // Image URL
+          result = await apiClient.classifyImageByURL(imageInput, options);
+        } else {
+          // Image File
+          result = await apiClient.classifyImage(imageInput, options);
+        }
         setState({ loading: false, error: null });
         return result;
       } catch (error) {

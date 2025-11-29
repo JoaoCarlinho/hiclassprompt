@@ -205,7 +205,7 @@ export default function ClassifyPage() {
                 </div>
                 <Button
                   onClick={handleClassify}
-                  disabled={!selectedImage || isProcessing}
+                  disabled={(!selectedImage && !imageUrl) || isProcessing}
                   loading={isProcessing}
                 >
                   {isProcessing ? 'Classifying...' : 'Classify Image'}
