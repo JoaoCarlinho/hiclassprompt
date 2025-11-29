@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Layout } from '@/components/layout/Layout';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { ProviderComparison } from '@/components/Comparison/ProviderComparison';
 
 export default function ComparePage() {
   return (
@@ -13,20 +13,11 @@ export default function ComparePage() {
             Provider Comparison
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Compare AI provider performance and costs
+            Test your prompt across all AI providers simultaneously and compare performance, cost, and accuracy
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Compare Providers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-500 dark:text-gray-400">
-              Provider comparison feature coming soon.
-            </p>
-          </CardContent>
-        </Card>
+        <ProviderComparison />
       </div>
     </Layout>
   );
