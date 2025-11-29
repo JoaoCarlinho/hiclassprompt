@@ -14,11 +14,13 @@ import { CostTracker } from '../core/cost-tracker';
 import { BudgetManager } from '../core/budget-manager';
 import { createCostsRouter } from './costs-api';
 import { createBatchRouter, setupBatchWebSocket } from './batch-api';
+import { createComparisonRouter } from './routes/comparison';
 import authRouter from './routes/auth';
 import analyticsRouter from './routes/analytics';
 import exportsRouter from './routes/exports';
 import promptVersionsRouter from './routes/promptVersions';
 import dashboardRouter from './routes/dashboard';
+import classifyRouter from './routes/classify';
 import { logger } from '../utils/logger';
 
 export interface AppConfig {
@@ -147,41 +149,13 @@ export class Application {
     // API routes
     this.app.use('/api/costs', createCostsRouter(this.costTracker, this.budgetManager));
     this.app.use('/api/batch', createBatchRouter(this.io));
+    this.app.use('/api/v1/prompts/compare', createComparisonRouter(this.io));
     this.app.use('/api/auth', authRouter);
     this.app.use('/api/analytics', analyticsRouter);
     this.app.use('/api/exports', exportsRouter);
     this.app.use('/api/dashboard', dashboardRouter);
+    this.app.use('/api/classify', classifyRouter);
     this.app.use('/api', promptVersionsRouter);
-
-    // Classification endpoint
-    this.app.post('/api/classify', async (req: Request, res: Response) => {
-      try {
-        const { imagePath, provider, prompt } = req.body;
-
-        // TODO: Implement actual classification
-        const result = {
-          id: `class-${Date.now()}`,
-          imagePath,
-          provider,
-          category: 'Electronics',
-          confidence: 0.95,
-          reasoning: 'Image appears to be an electronic device',
-          latencyMs: 850,
-          tokensInput: 10000,
-          tokensOutput: 500,
-          costUsd: 0.000075,
-          timestamp: new Date().toISOString()
-        };
-
-        // Track cost
-        this.costTracker.recordCost(result as any);
-
-        res.json(result);
-      } catch (error) {
-        logger.error('Classification failed', { error });
-        res.status(500).json({ error: 'Classification failed' });
-      }
-    });
 
     // Results endpoint
     this.app.get('/api/results', async (req: Request, res: Response) => {
